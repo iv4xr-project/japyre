@@ -36,13 +36,13 @@ class ModelTrainer:
 def deployTrainingServer(trainer:ModelTrainer, host:str , port:int,receiveBufferSize=4096) -> None :
     def interpret(cmd,arg):
         retval = "OK__"
-        if cmd == "START" : 
+        if cmd == "START_TRAINING" : 
                 trainer.configure(arg)
         elif cmd == "SAVE"  :
                 filename = json.dumps(arg)["filename"]
                 trainer.getModel().save(filename)
-        elif cmd == "GETNEXTACTION" :
-                observation     = arg["obs"]  # current observation/state
+        elif cmd == "GET_NEXTACTION" :
+                observation     = arg["st"]  # current observation/state
                 previousAction  = arg["prev"] # the previous action that leads to the current state
                 reward          = arg["rew"]  # the reward given upon reaching the current state
                 possibleActions = arg["opts"] # list of next-actions that are possible on the current state
@@ -51,22 +51,23 @@ def deployTrainingServer(trainer:ModelTrainer, host:str , port:int,receiveBuffer
                 retval = nextAction
 
         return retval
-            
+    print("> About to deploy a model-training-server.")        
     cmdServer = CommandServer.deployCommandServer(host,port,interpret,receiveBufferSize)
 
 
-def deployModelServer(trainedModel:Model, host:str, port:int, receiveBufferSize=4096) -> None :
+def deployModelServer(model:Model, host:str, port:int, receiveBufferSize=4096) -> None :
     def interpret(cmd,arg):
         retval = "OK__"
         if cmd == "LOAD"  :
                 filename = json.dumps(arg)["filename"]
-                trainedModel.load(filename)
-        elif cmd == "GETNEXTACTION" :
+                model.load(filename)
+        elif cmd == "GET_NEXT_TRAINEDACTION" :
                 observation     = arg["obs"]  # current observation/state
-                nextAction = trainedModel.getNextTrainedAction(observation)
+                nextAction = model.getNextTrainedAction(observation)
                 retval = nextAction
         return retval
-            
+
+    print("> About to deploy a model-server.")                
     cmdServer = CommandServer.deployCommandServer(host,port,interpret,receiveBufferSize)
 
 

@@ -1,7 +1,7 @@
 from hashlib import blake2b
 import random
 from typing import Any, Callable, Dict, List
-from RLServer import Model, ModelTrainer
+from RLServer import Model, ModelTrainer, deployModelServer, deployTrainingServer
 
 class SquareWorldModel(Model):
     def __init__(self):
@@ -112,3 +112,5 @@ class SquareWorldModelTrainer(ModelTrainer) :
 # just for testing:
 if __name__ == '__main__':
     print("Baa!")
+    trainer = SquareWorldModelTrainer()
+    deployTrainingServer(trainer,"127.0.0.1",9999)
