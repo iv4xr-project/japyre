@@ -21,6 +21,10 @@ import java.util.List;
  * with the goal of playing the game so that it gets as much total reward as
  * possible.
  * 
+ * @param <State> The type of the state of this game. It should be serializable to Json.
+ *    E.g. primitive types, or a class whose fields are all primitive types are
+ *    Json-serialization.
+ * 
  * @author Wish
  */
 public interface IStatefulGame<State> {
