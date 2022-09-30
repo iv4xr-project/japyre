@@ -3,14 +3,6 @@ import json
 from typing import Any, Callable, Dict, List
 
 class Model:
-    def mkFreshModel(self,modelConfig:Dict) :
-        ''' 
-        Make a fresh untrained model with the given model-configuration. 
-        This method returns thus an instance of Model.
-        '''
-        print(">>> Implement this method.")
-        raise
-
     def save(self, filename:str) -> None :
         ''' Save this model to a file. '''
         print(">>> Implement this method.")
@@ -57,51 +49,63 @@ class Model:
 
 
 class TrainingServer:
-    def __init__(self, host:str, port:int):
+    def __init__(self, host:str, port:int, modelConstructor:Callable[[Dict],Model]):
         self.host = host
         self.port = port
+        self.modelConstructor = modelConstructor
         self.model   = None
         self.trainer = None
+        self.previousState = None
+        self.commandServer = CommandServer(host,port)
 
-    def deployTrainingServer(trainer:ModelTrainer,receiveBufferSize=4096) -> None :
-        def interpret(cmd,arg):
-            retval = "OK__"
-            if cmd == "MK_FRESH_MODEL" : 
-                    trainer.configure(arg)
-
-            if cmd == "START_TRAINING" : 
-                    trainer.configure(arg)
-            elif cmd == "SAVE"  :
-                    filename = json.dumps(arg)["filename"]
-                    trainer.getModel().save(filename)
-            elif cmd == "GET_NEXTACTION" :
-                    observation     = arg["st"]  # current observation/state
-                    previousAction  = arg["prev"] # the previous action that leads to the current state
-                    reward          = arg["rew"]  # the reward given upon reaching the current state
-                    possibleActions = arg["opts"] # list of next-actions that are possible on the current state
-                    trainer.applyReward(previousAction,observation,reward)
-                    nextAction = trainer.getNextAction(observation,possibleActions)
-                    retval = nextAction
-
-            return retval
-        print("> About to deploy a model-training-server.")        
-        cmdServer = CommandServer.deployCommandServer(host,port,interpret,receiveBufferSize)
-
-
-def deployModelServer(model:Model, host:str, port:int, receiveBufferSize=4096) -> None :
-    def interpret(cmd,arg):
+    def interpretCommand(self,cmd,arg):
         retval = "OK__"
+        arg__ = json.dumps(arg)
+        if cmd == "MK_FRESH_MODEL" : 
+                modelParameters = arg__
+                self.model = self.modelConstructor(modelParameters)
+                self.previousState = None
+                return retval
+        if cmd == "SAVE"  :
+                filename = arg__
+                self.model.save(filename)
+                return retval
         if cmd == "LOAD"  :
-                filename = json.dumps(arg)["filename"]
-                model.load(filename)
-        elif cmd == "GET_NEXT_TRAINEDACTION" :
-                observation     = arg["obs"]  # current observation/state
-                nextAction = model.getNextTrainedAction(observation)
-                retval = nextAction
-        return retval
+                filename = arg__
+                self.model = self.model.load(filename)  
+                self.previousState = None
+                return retval
 
-    print("> About to deploy a model-server.")                
-    cmdServer = CommandServer.deployCommandServer(host,port,interpret,receiveBufferSize)
+        if cmd == "SET_TRAINING_CONFIG"  :
+                trainingConfig = arg__
+                self.model = self.model.setTrainingAlgorithm(trainingConfig)
+                return retval        
+
+        if cmd == "GET_NEXTACTION" :
+                state           = arg__["st"]   # current observation/state
+                action          = arg__["prev"] # the action that leads to the current state
+                reward          = arg__["rew"]  # the reward given upon reaching the current state
+                possibleActions = arg__["opts"] # list of next-actions that are possible on the current state
+                if  action != None :
+                    self.model.applyReward(self.previousState,action,state,reward)
+                self.previousState = state
+                nextAction =  self.model.getNextActionToTry(state,possibleActions)
+                return nextAction
+
+        if cmd == "GET_NEXT_TRAINEDACTION" :
+                state     = arg__  # current observation/state
+                nextAction = self.model.getNextTrainedAction(state)
+                return nextAction
+
+        raise ValueError("## receiving an unknown command: " + cmd)
+
+    def deploy(self,receiveBufferSize=4096) -> None :
+        print("> About to deploy a model-training-server.")   
+        def foo(cmd,arg) :
+            return self.interpretCommand(cmd,arg)   
+        self.commandServer.attachInterpreter(foo)
+        self.commandServer.deploy(receiveBufferSize)
+
 
 
 # just for testing:

@@ -120,6 +120,11 @@ public class JapyreTrainer<ModelConfiguration,State> {
 			          throws IOException 
 	{	
 		System.out.println("> Start training...") ; 
+		String ok = sendcommand.sendCommand("SET_TRAINING_CONFIG", trainingCofig, String.class) ;
+		if (! ok.equals("OK__")) {
+			System.out.println("> The SET_TRAINING_CONFIG command does not return an OK.") ;
+			throw new IOException() ;
+		}
 		this.resetTheStatefulGame();
 		int episodeCount = 0 ;
 		List<Integer> stepCounts = new LinkedList<>() ;
