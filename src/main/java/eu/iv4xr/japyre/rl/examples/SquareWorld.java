@@ -4,7 +4,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-import eu.iv4xr.japyre.rl.IStatefulGame;
+import eu.iv4xr.japyre.klad.IStatefulGame;
+import eu.iv4xr.japyre.rl.IJavaGymEnv;
+import eu.iv4xr.japyre.rl.RLStepData;
 
 /**
  * A SquareWorld is a tiled NxN grid, where a robot is dropped in its center.
@@ -13,15 +15,18 @@ import eu.iv4xr.japyre.rl.IStatefulGame;
  * so has no idea what to do. The method execute(a) allows you to control the
  * robot.
  * 
- * <p>Moving off the grid causes the robot to be broken, which we will represent
- * by a terminal position (N,N).
+ * <p>Moving off the grid causes the robot to be broken.
  */
-public class SquareWorld implements IStatefulGame<SquareWorld.Location> {
+public class SquareWorld implements IJavaGymEnv<SquareWorld.Location> {
 	
 	public static class Location {
 		int x ;
 		int y ;
 		public Location(int x, int y) { this.x = x ; this.y = y ; }
+		@Override
+		public String toString() {
+			return "<" + x + "," + y + ">" ;
+		}
 	}
 	
 	public int size ;
@@ -46,112 +51,108 @@ public class SquareWorld implements IStatefulGame<SquareWorld.Location> {
 	public static boolean debug = false ;
 
 	@Override
-	public void reset() {
+	public Location reset() {
 		currentLocation.x = size/2 ;
 		currentLocation.y = size/2 ;
 		rnd = new Random(randomSeed) ;
 		stepCount = 0 ;
-	}
-
-	@Override
-	public Location getState() {
 		return currentLocation ;
 	}
 	
+	@Override
+	public List<String> actionSpace() {
+		List<String> actions = new LinkedList<>() ;
+		actions.add(LEFT) ;
+		actions.add(RIGHT) ;
+		actions.add(UP) ;
+		actions.add(DOWN) ;
+		return actions ;
+		
+	}
+
 	private void crash() {
 		if (debug) System.out.println("## The robot CRASHES.") ;
 		currentLocation.x = size ;
 		currentLocation.y = size ;
 	}
+	
+	public boolean goalAchieved() {
+		return (currentLocation.x == size-1 && currentLocation.y == size-1) ;
+	}
+	
+	public boolean offTheGrid() {
+		return currentLocation.x < 0 || currentLocation.x >= size ||
+			   currentLocation.y < 0 || currentLocation.y >= size ;
+	}
 
-	@Override
 	public boolean isTerminalState() {
-		return (currentLocation.x == size-1 && currentLocation.y == size-1)
-				|| (currentLocation.x == size && currentLocation.y == size) ;
+		return goalAchieved() || offTheGrid() ;
 	}
 
-	@Override
-	public List<String> getCurrentlyPossibleActions() {
-		List<String> options = new LinkedList<>() ;
-		if (isTerminalState()) return options ;
-		if (currentLocation.x > 0) 
-			options.add(LEFT) ;
-		if (currentLocation.x < size-1)
-			options.add(RIGHT) ;
-		if (currentLocation.y > 0)
-			options.add(DOWN) ;
-		if (currentLocation.y < size-1)
-			options.add(UP) ;
-		return options ;
-	}
+	
 	
 
 	@Override
-	public float execute(String action) {
+	public RLStepData<Location> step(String action) {
 		if (this.isTerminalState()) {
-			if (debug) System.out.println("## the robot is in a terminal state. No action is possible.") ;
-			return 0 ;
+			if (debug) {
+				System.out.println("## the robot is in a terminal state. No action is possible.") ;
+			}
+			return null ;
 		}
-		if (debug) System.out.println("## " + stepCount + ":" + action) ;
-		int x = currentLocation.x ;
-		int y = currentLocation.y ;
-		stepCount++ ;
 		switch(action) {
 			case "left" :
-				x-- ;
-				if (x<0) {
-					crash() ; return -100 ;
-				}
+				currentLocation.x -- ;
 				break ;
 			case "right" :
-				x++ ;
-				if (x>=size) {
-					crash() ; return -100 ;
-				}
+				currentLocation.x ++ ;
 				break ;
 			case "down" :
-				y-- ;
-				if (y<0) {
-					crash() ; return -100 ;
-				}
+				currentLocation.y -- ;
 				break ;
 			case "up" :
 				if (deterministic) {
-					y++ ;
+					currentLocation.y ++ ;
 				}
 				else {
-					if (y>0 && rnd.nextFloat() <= 0.15) {
-						y-- ;
+					if (rnd.nextFloat() <= 0.15) {
+						currentLocation.y -- ;
 					}
 					else {
-						y++ ;
+						currentLocation.y ++ ;
 					}
 				}
-				if (y>=size) {
-					crash() ; return -100 ;
-				}
-				break ;
 		}
-		currentLocation.x = x ;
-		currentLocation.y = y ;
-		float reward = 0f ;
-		if (x==size-1 && y==size-1) {
-			if (debug) System.out.println("## robot SUCCEEDS to get to the goal-location.") ;	
-			reward = 100f ;
+		if (debug) {
+			System.out.print("## " + stepCount + ":" + action) ;
+			if (offTheGrid()) {
+				System.out.println(", the robot CRASHES.") ;
+			}
+			else if (goalAchieved()) {
+				System.out.println(", SUCCESS reaching the goal.") ;
+			}
+			else {
+				System.out.println("") ;
+			}
 		}
-		return reward ;
+		float reward = goalAchieved() ? 100 : (offTheGrid() ? -100 : 0) ;
+
+		stepCount++ ;
+		
+		RLStepData<Location> o = new RLStepData<>(currentLocation,reward,isTerminalState()) ;
+		return o ;
 	}
 	
 	// just for testing
 	public static void main(String[] args) {
 		SquareWorld sw = new SquareWorld(6) ;
 		SquareWorld.debug = true ;
-		float reward = 0 ;
-		reward = sw.execute(RIGHT) ; System.out.println(">> rw=" + reward);
-		reward = sw.execute(RIGHT) ; System.out.println(">> rw=" + reward);
-		reward = sw.execute(UP) ; System.out.println(">> rw=" + reward);
-		reward = sw.execute(RIGHT) ; System.out.println(">> rw=" + reward);
-		reward = sw.execute(RIGHT) ; System.out.println(">> rw=" + reward);	
+		RLStepData<Location> o  ;
+		o = sw.step(RIGHT) ; System.out.println(">> " + o);
+		o = sw.step(RIGHT) ; System.out.println(">> " + o);
+		o = sw.step(UP)    ; System.out.println(">> " + o);
+		o = sw.step(RIGHT) ; System.out.println(">> " + o);
+		o = sw.step(RIGHT) ; System.out.println(">> " + o);	
 	}
 	
 }

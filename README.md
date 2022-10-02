@@ -1,5 +1,7 @@
 # Japyre
 
+# Pfff... throw away and re-design!
+
 Japyre is a library provides a socket-based connection between Java and Python to enable Reinforcement Learning (RL) libraries in Python to be used to solve problems formulated in Java. Which RL library to use is up to you, Japyre only provides a convenient Java-Python connection, and several basic interfaces to plug-in "problems" and "RL" to the connection.
 
 ### Main concepts

@@ -1,10 +1,10 @@
-package eu.iv4xr.japyre.rl;
+package eu.iv4xr.japyre.klad;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 
-import eu.iv4xr.japyre.connection.SendCommandOverSocket;
+import eu.iv4xr.japyre.connection.SendCommandClient;
 
 /**
  * A trainer is used to train a model (or a policy, depending of the used training
@@ -29,7 +29,7 @@ import eu.iv4xr.japyre.connection.SendCommandOverSocket;
  */
 public class JapyreTrainer<ModelConfiguration,State> {
 
-	SendCommandOverSocket sendcommand ;
+	SendCommandClient sendcommand ;
 	IStatefulGame<State> statefulgame ;
 	int stepCount = 0 ;
 	boolean modelPresent = false ;
@@ -39,7 +39,7 @@ public class JapyreTrainer<ModelConfiguration,State> {
 	 * training-server at the specified ip-address and port.
 	 */
 	public JapyreTrainer(String host, int port) {
-		sendcommand = new SendCommandOverSocket(host,port) ;
+		sendcommand = new SendCommandClient(host,port) ;
 	}
 
 	/**

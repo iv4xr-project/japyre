@@ -1,4 +1,4 @@
-package eu.iv4xr.japyre.connection;
+package eu.iv4xr.japyre.klad;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -20,7 +20,7 @@ import com.google.gson.GsonBuilder;
  * 
  * <p>Note: this class was taken over from iv4xrDemo. 
  */
-public class SocketReaderWriter {
+public class SocketJsonReaderWriterzzz {
 	
 	public static boolean debug = false ;
 	
@@ -44,7 +44,7 @@ public class SocketReaderWriter {
      * Constructor. Will setup the needed socket to communicate with the given host
      * at the given port.
      */
-    public SocketReaderWriter(String host, int port) {
+    public SocketJsonReaderWriterzzz(String host, int port) {
     	this.host = host ;
     	this.port = port ;
         int maxWaitTime = 20000;

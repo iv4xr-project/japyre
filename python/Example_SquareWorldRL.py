@@ -1,47 +1,57 @@
-from hashlib import blake2b
 import random
 from typing import Any, Callable, Dict, List
-from RLServer import Model, ModelTrainer, deployModelServer, deployTrainingServer
 
-class SquareWorldModel(Model):
-    def __init__(self):
-        self.size   = 0
-        # vtable will be a 2D array, with qtable[x][y] representing
-        # estimated value of the position/state (x,y).
-        self.vtable = []
+class QLearning:
+    def __init__(self,numberOfStates,numberOfActions):
+        self.numberOfStates  = numberOfStates
+        self.numberOfActions = numberOfActions
+        self.seed  = 127
+        self.alpha = 0.5
+        self.gamma = 0.9
+        self.exploreProbability = 0.16
+        self.numberOfEpisodes = 1
+        self.episodeMaxLength = 16
+        random.seed(self.seed)
+        # qtable will be a 2D array, with qtable[x][y] is a dictionary
+        # mapping actions to value
+        def mkcell():
+            return { "left"  : random.random()/100.0 , \
+                     "right" : random.random()/100.0 , \
+                     "up"    : random.random()/100.0, \
+                     "down"  : random.random()/100.0 }
 
-    def configure(self,size) :
-        '''
-        Initialize the model for a square-world of the specified size.
-        The values in the qtable will be initialed randomly, except the V(goal-location),
-        which is intialized to 0 (for a technical reason, it should be 0).
-        '''
-        self.size = size
-        self.vtable = [ [ random.random()/100.0 for y in range(size) ] for x in range(size) ]
-        # the goal/terminal state has value 0, for technical reason
-        # (to prevent the v-value to increase indefinitely)
-        self.vtable[size-1][size-1] = 0
+        self.qtable = [ [ mkcell() for y in range(size) ] for x in range(size) ]
 
-    def getNextTrainedAction(self, currentState:Dict) -> str :
-        ''' Return an action, that is the best according to the vtable. '''
+    def setTrainingAlgorithm(self, trainingConf:Dict) -> None :
+        return    
+
+    def bestActionValue(self,currentState:Dict) -> Dict :
         x = currentState["x"]
         y = currentState["y"]
-        if x == self.size-1 and y == self.size-1 : 
-            # already in the goal-state
-            return "doNothing"
-        # find an action that leads to a neighbor state with best-value:
-        bestAction = ""
-        bestNeighbourValue = -1
-        if x>0 and self.qtable[x-1][y] > bestNeighbourValue :
-            bestAction = "left"
-        if x<self.size-1 and self.qtable[x+1][y] > bestNeighbourValue :
+        actionValues = self.qtable[x][y]
+        bestAction = "left"
+        bestValue = actionValues["left"]
+        v = actionValues["right"]
+        if  v > bestValue :
+            bestValue = v
             bestAction = "right"
-        if y>0 and self.qtable[x][y-1] > bestNeighbourValue :
-            bestAction = "down"
-        if y<self.size-1 and self.qtable[x][y+1] > bestNeighbourValue :
+        v = actionValues["up"]
+        if  v > bestValue :
+            bestValue = v
             bestAction = "up"
+        v = actionValues["down"]
+        if  v > bestValue :
+            bestValue = v
+            bestAction = "down"
 
-        return bestAction 
+        return { "bestAction" : bestAction, "bestValue" : bestValue }
+
+
+    def getNextTrainedAction(self, currentState:Dict) -> str :
+        ''' Return an action, that is the best according to the qtable. '''
+        best = self.bestActionValue(currentState)
+        return best["bestAction"]
+
 
     def save(self,fname):
         print(f"> Saving a model to {fname}")
@@ -64,18 +74,11 @@ class SquareWorldModelTrainer(ModelTrainer) :
     Implementing a simple Temporal Difference learning.
     """
     def __init__(self):
-        self.model = None
-        self.seed  = 127
-        self.alpha = 0.5
-        self.gamma = 0.9
-        self.exploreProbability = 0.16
-        self.numberOfEpisodes = 1
-        self.episodeMaxLength = 16
-        self.currentState = { "x":-1, "y":-1 }
+        
 
     def configure(self, conf:Dict) -> None :
         # self.seed = conf["seed"]
-        random.seed(self.seed)
+        
         size = conf["size"]
         self.model = SquareWorldModel()
         self.model.configure(size)

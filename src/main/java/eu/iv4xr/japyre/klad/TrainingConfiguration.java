@@ -1,4 +1,4 @@
-package eu.iv4xr.japyre.rl;
+package eu.iv4xr.japyre.klad;
 
 /**
  * Representing parameters to be sent to the Python-side RL before we run
