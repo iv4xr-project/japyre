@@ -46,12 +46,22 @@ public class GymEnvServer<Observation> {
     
     public void start() throws IOException {
     	System.out.println(String.format("> Starting a GynEnv-server at port %s.", port));
-
+ 
+    	// accept a connection request from a client; for our purpose
+    	// a single-client setup is enough:
     	Socket clientsocket = serversocket.accept() ;
     	readerwriter = new ObjectReaderWriter_OverSocket(clientsocket) ;
     	boolean keepRunning = true ;
     	while (keepRunning) {
     		TrainingCommand cmd =  readerwriter.read(TrainingCommand.class) ;
+    		if (cmd == null) {
+    			System.out.println(String.format("> The client left."));
+    			// for now, we will close the server as well, but probably we don't
+    			// have to. 
+    			// TODO.
+    			keepRunning = false ;
+    			break ;
+    		}
     		switch (cmd.cmd) {
     		  case "RESET" : // Python wants the GymEnv to reset its state
     			  Observation o = gymEnv.reset(); 
@@ -74,9 +84,12 @@ public class GymEnvServer<Observation> {
     			  keepRunning = false ;
     		}	
     	}
+    	System.out.println(String.format("> Closing GynEnv-server..."));
     	readerwriter.close(); 
     	clientsocket.close();
     	serversocket.close();
+    	System.out.println(String.format("> The GynEnv-server is closed."));
+
     }
     
     public void turnDebugMode(boolean on) {
