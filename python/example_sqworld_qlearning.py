@@ -7,9 +7,9 @@ env = SqWorldEnv(6) # 6 is the size of the sq-world as set at the Java-side
 N = env.size
 N_plus_2 = N+2
 qalg = Qlearning(N_plus_2*N_plus_2, len(env.javaGym.actionSpace))
-qalg.alpha = 1
+#qalg.alpha = 1
 print("====== Training...")
-maxSteps = 800
+maxSteps = 2000
 def convertToIndex(obs) :
     x = obs[0]
     y = obs[1]
@@ -27,12 +27,19 @@ while k < maxSteps:
     nextO_ = convertToIndex(nextObs)
     #print(f"### next={nextObs}, next_={nextO_}")
     qalg.applyReward(o_,action,nextO_,reward)
+    debugo = o
     o = nextObs
     if done :
         print(f">> Episode {episode}, #steps={stepCountInEpisode}, reward={reward}")
         episode = episode + 1
         o = env.reset()
         stepCountInEpisode = 0
+        #if (reward > 0) : 
+        #    print(f"### o={debugo}, o_={o_}, next={nextObs}, next_={nextO_}, rw={reward}")
+        #    print(f"### updated enrty={qalg.qtable[o_][action]}")
+        #    break
+        
+        
     else:
         stepCountInEpisode = stepCountInEpisode + 1
     k = k + 1
@@ -53,7 +60,7 @@ k = 0
 done = False
 o = env.reset()
 print(f">> Robot initial position: {o}")    
-while (not done) and k < 0 :
+while (not done) and k < 10 :
     o_ = convertToIndex(o)
     #print(f"### o={o}, o_={o_}")
     action = qalg.getNextTrainedAction(o_)

@@ -2,9 +2,14 @@ package eu.iv4xr.japyre.rl;
 
 /**
  * Just a tuple of (observation,reward,...) that a GymEnv step-function needs to
- * construct.
+ * construct; see {@link eu.iv4xr.japyre.rl.IJavaGymEnv#step(String)}.
  * 
- * <p>The type parameter "Observation" is usually an array (1D/2D, etc) of numerics.
+ * <p>
+ * The type parameter "Observation" represents an observation produced by a
+ * (Java-side) GymEnv, see {@link eu.iv4xr.japyre.rl.IJavaGymEnv#step(String)}.
+ * It can be any type that can be serialized to Json for transport over socket.
+ * The Python-side is responsible for converting this observation to a data
+ * structure accepted by the RL algorithm that we want to use there.
  * 
  * @author Wish
  */

@@ -12,8 +12,8 @@ import java.util.Scanner;
 /**
  * A class that supports sending a pair (cmd,arg) to a server and receives the
  * response the server sends. A socket is used to facilitate the connection to
- * the server. From the perspective of client-server relation, this class will
- * then acts as a client.
+ * the server. From the perspective of a client-server relation, this class
+ * acts as a client.
  * 
  * <p>
  * The pair (cmd,arg) represents some command and its argument. When sent to the
@@ -103,8 +103,8 @@ public class SendCommandClient {
     	return readerwriter.read(expectedClassOfResultObj) ;
     }
     
-    public void turnDebugMode(boolean on) {
-		ObjectReaderWriter_OverSocket.debug = on ;
+	public void turnDebugMode(boolean on) {
+		ObjectReaderWriter_OverSocket.debug = on;
 	}
     
     public void close() throws IOException {

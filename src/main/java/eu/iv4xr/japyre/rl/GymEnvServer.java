@@ -1,4 +1,4 @@
-package eu.iv4xr.japyre.connection;
+package eu.iv4xr.japyre.rl;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -6,19 +6,18 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.List;
 
-import eu.iv4xr.japyre.rl.IJavaGymEnv;
-import eu.iv4xr.japyre.rl.RLStepData;
+import eu.iv4xr.japyre.connection.ObjectReaderWriter_OverSocket;
 
 /**
- * Deploy an instance of JavaGymEnv as a server that can respond to requests
- * from a Python-side client. At the Python-side we will need another GymEnv
- * that twins the Java-side Gym. When applying an RL algorithm it is the Python
- * GymEnv that we will give to the RL-algorithm. But this Python-side Env will
- * then call this Java GymEnv through this server.
+ * Deploy an instance of {@link eu.iv4xr.japyre.rl.IJavaGymEnv} as a server that
+ * can respond to requests from a Python-side client. At the Python-side we will
+ * need another GymEnv that twins the Java-side Gym. When applying a Python-side
+ * RL algorithm, it will operate on a Python-side GymEnv. This Python-side Env
+ * should then call this Java GymEnv through this server.
  *
  * @param <Observation> Some type representing observations that Java GymEnv
  *                      produces. These will be sent to the Python-side as JSon
- *                      strings. The python-side is responsible for tranlsating
+ *                      strings. The Python-side is responsible for translating
  *                      this type to some representation suitable for whatever
  *                      the RL-algorithm to use.
  *

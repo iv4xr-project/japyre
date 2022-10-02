@@ -2,7 +2,7 @@ package eu.iv4xr.japyre.rl.examples;
 
 import java.io.IOException;
 
-import eu.iv4xr.japyre.connection.GymEnvServer;
+import eu.iv4xr.japyre.rl.GymEnvServer;
 
 public class SquareWorldGymServer {
 	

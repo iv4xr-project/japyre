@@ -12,15 +12,16 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 /**
- * Provide convenient reader/writer to read and write objects over a socket.
+ * Provide a convenient reader/writer to read and write objects over a socket.
  * This allows an object to be send over the socket (to a recipient on the other
  * side of the socket-connection), encoded as a Json-string. Similarly, the
  * reader can receive an object, encoded as a Json-string, that was sent to this
  * class over the socket. Note that this implies that the object sent like this
  * must be serializable to Json.
  * 
- * <p>
- * Note: this class was taken over from iv4xrDemo.
+ * <p>This class can be used by both a server or a client. 
+ * 
+ * <p>Note: this class was taken over from iv4xrDemo.
  */
 public class ObjectReaderWriter_OverSocket {
 
