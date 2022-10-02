@@ -5,6 +5,23 @@ from gymenv_client import GymEnvClient
 from stable_baselines3 import PPO
 
 class SqWorldEnv(gym.Env) :
+    '''
+    Provides an example of how to write a custom OpenAI Gym-env for a Gym written in Java.
+    In this example, the real Gym-env is the SquareWorld gym, provided in Java. This Java-gym
+    can be interacted to from python through a server, which can be launched from the Java-class
+    SquareWorldGymServer. From the Python-side, the class GymEnvClient can be used to provide
+    a Gym-like APIs over this client-server connection (so, the connection will become transparent
+    for you). This GymEnvClient already have methods similar to OpenAI Gym-Env, but it is not
+    a subclass of the latter. So, this class SqWorldEnv is just a wrapper and a subclass of OpenAI
+    Gym-Env.
+
+    The SquareWorld gym itself represents a tiled NxN grid, where a robot is dropped in its 
+    center. Its goal is to reach the top-right corner of the grid (location (N-1,N-1)). The 
+    robot can move left/right/up/down. Moving off the grid causes the robot to be broken.
+    Getting to the goal location gives a reward of 100; getting broken -100; and else the reward
+    is 0. The task of RL is to find a sequence of interactions that would maximize the total
+    reward.
+    '''
 
     def __init__(self, worldSize):
         super(SqWorldEnv, self).__init__()

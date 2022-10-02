@@ -9,13 +9,20 @@ import eu.iv4xr.japyre.rl.IJavaGymEnv;
 import eu.iv4xr.japyre.rl.RLStepData;
 
 /**
- * A SquareWorld is a tiled NxN grid, where a robot is dropped in its center.
- * Its goal is to reach the top-right corner of the grid (location (N-1,N-1)).
- * The robot can move left/right/up/down. The robot itself has no intelligence,
- * so has no idea what to do. The method execute(a) allows you to control the
- * robot.
+ * This class provides a simple example implementation of
+ * {@link eu.iv4xr.japyre.rl.IJavaGymEnv}.
  * 
- * <p>Moving off the grid causes the robot to be broken.
+ * <p>
+ * The provided Gym is called SquareWorld. It is a tiled NxN grid, where a robot
+ * is dropped in its center. Its goal is to reach the top-right corner of the
+ * grid (location (N-1,N-1)). The robot can move left/right/up/down. The robot
+ * itself has no intelligence, so has no idea what to do. The method execute(a)
+ * allows you to control the robot.
+ * 
+ * <p>
+ * Moving off the grid causes the robot to be broken.
+ * 
+ * @author Wish
  */
 public class SquareWorld implements IJavaGymEnv<SquareWorld.Location> {
 	
