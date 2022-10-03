@@ -18,47 +18,14 @@ The goal of RL could be to train/learn a V-function or a Q-function (model), fro
 
 ### Architecture
 
-Imagine, you have a gym-environment in _Java_, and you want to train a model using a _Python_ RL library. Generally, what you need to do is: (1) implement this gym-environment as a class G in Java, and (2) implement a mirror-API, let's call it H, in Python that implements typical gym-environment methods, but forward the calls to G through a client-server scheme provided by Japyre. To train a model using some RL algorithm A, we use A on H instead of using it on G (well, A can't directly target G, as G is in Java).
+Imagine, you have a gym-environment in _Java_, and you want to train a model using a _Python_ RL library. Generally, what you need to do is: (1) implement this gym-environment as a class G in Java, and (2) implement a 'mirror'-API, let's call it H, in Python that implements typical gym-environment methods, but forward the calls to G through a client-server scheme provided by Japyre. To train a model using some RL algorithm A, we use A on H instead of using it on G (well, A can't directly target G, as G is in Java).
 
 ### How to build
 
 The Java binary can be built using Maven. Just use `mvn compile` to build, and `mvn install` to install the Java binary in your local Maven repository.
 
-The Python modules can be found in `python` subdir.
+The Python modules can be found in `python` subdir. No packaging yet :) To-do.
 
 ### How to use Japyre, explained with an example
 
-To do
-
-### Ignore...
-
-
-
-   1. Implement the Java interface [`IJavaGymEnv`](src/main/java/eu/iv4xr/japyre/rl/IJavaGymEnv.java). This implementation `MyGym` is your gym-environment.
-   2. Implement a Python subclass `MirrorGym` of OpenAI `gym.Env`, such that its methods like `reset()` and `step()` calls the Java gym via the class `GymEnvClient` (provided by Japyre).
-
-To run an RL algorithm, generally the work flow is:
-
-   1. Run an instance of [`GymEnvServer`](src/main/java/eu/iv4xr/japyre/rl/GymEnvServer.java) at the Java-side, giving to it an instance of your `MyGym`.
-   2. Configure your RL algorithm, and run it, giving it an instance of your MirrorGym`.
-
-To use a trained model: see below.
-
-### Ignore...
-
-At the Java-side, you need to formulate your problem as an implementation of the interface [`IJavaGymEnv`](src/main/java/eu/iv4xr/japyre/rl/IJavaGymEnv.java).
-
-At the Python-side, write a subclass of OpenAI (or StableBaselines) `gym.Env`, implementing its main methods (constructor, reset(), step(), close()) so that they call the corresponding functions at the Java-side implementation of IJavaGymEnv. To call the Java-side, a socket-based client-server programs will be provided.
-
-To train the model:
-
-  1. At the Java-side, run the function `JapyreTrainer()`, passing to it an instance of your StatefulGame and some configuration parameters of the training.
-JapyreTrainer will make a connection to the TrainingServer at the Python-side, and then automatically start the training process for some number of episodes. At the end, the trained model will be saved in a file.
-
-To use a trained model:
-
-  1. At the Python-side, run the function `deployModelServer()`, passing to it an instance of `Model`; this can be just an empty model.
-
-2. At the Java-side, run the function `JapyreDriver()`, passing to it an instance of your StatefulGame.
-JapyreDriver will make a connection to the ModelServer at the Python-side, and ask the ModelServer to load a trained-model from some file.
-The model is assumed to come with some policy, and then the Driver will just run this policy on the Game.
+   * See the [SquareWorld](./docs/SquareWorldExample.md) example

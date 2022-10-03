@@ -111,6 +111,7 @@ class Qlearning:
         print("====== Learning ...")
         k = 0
         stepCountInEpisode = 0
+        totalRewardInEpisode = 0
         episode = 0
         o = env.reset()
         while k < maxNumberOfSteps:
@@ -118,15 +119,17 @@ class Qlearning:
             #print(f"### action = {action}")
             nextObs,reward,done,i = env.step(action) 
             #print(f"### next={nextObs}, next_={nextO_}")
+            totalRewardInEpisode = totalRewardInEpisode + reward
             self.applyReward(o,action,nextObs,reward)
             debugo = o
             o = nextObs
             if done :
                 if verbose:
-                    print(f">> Episode {episode}, #steps={stepCountInEpisode}, reward={reward}")
+                    print(f">> Episode {episode}, #steps={stepCountInEpisode}, last-reward={reward}, tot-reward={totalRewardInEpisode}")
                 episode = episode + 1
                 o = env.reset()
                 stepCountInEpisode = 0
+                totalRewardInEpisode = 0
                 #if (reward > 0) : 
                 #    print(f"### o={debugo}, o_={o_}, next={nextObs}, next_={nextO_}, rw={reward}")
                 #    print(f"### updated enrty={qalg.qtable[o_][action]}")
@@ -145,6 +148,7 @@ class Qlearning:
         '''
         seq = []
         k = 0
+        totalRewardInEpisode = 0
         done = False
         o = env.reset()
         if verbose:
@@ -154,9 +158,10 @@ class Qlearning:
             action = self.getNextTrainedAction(o)
             #print(f"### action = {action}")
             nextObs,reward,done,i = env.step(action) 
+            totalRewardInEpisode = totalRewardInEpisode + reward
             a = env.javaGym.actionSpace[action]
             seq.append(a)
-            print(f">> Action {a}, new state: {nextObs}, reward={reward}, terminal={done}")    
+            print(f">> Action {a}, new state: {nextObs}, terminal={done}, last-reward={reward}, tot-reward={totalRewardInEpisode}")    
             o = nextObs
             k = k + 1
 
