@@ -1,6 +1,6 @@
 ## SquareWorld Example
 
-SquareWorld is a very simple world in Java. It is a 2D NxN grid-world. The grid consists of tiles. There is an imaginary robot dropped in the center of this world. The goal of the robot is to reach the top-right corner of the world (so, location (N-1,N-1)). The robot can be steered by moving it left/right/up/down, to a neighbouring tile. If it moves off the grid, it crashes. The picture below is just for your imagination; we don't actually have a GUI that visualizes it.
+SquareWorld is a very simple world in Java. It is a 2D NxN grid-world. The grid consists of tiles. There is an imaginary robot dropped in the center of this world. The goal of the robot is to reach the top-right corner of the world (so, location (N-1,N-1)). The robot can be steered by moving it left/right/up/down, to a neighbouring tile. If it moves off the grid, it crashes. The picture below is just for your imagination; we don't actually have a GUI.
 
 ![SquareWorld](./SquareWorld.png)
 
@@ -24,11 +24,25 @@ class SquareWorld{
 
 The method `step()` returns an object containing, essentially, the new state of the robot (its new position), and some reward. The reward is +100 if the action brings the robot to the goal-location, -100 if it causes the robot to fall off the grid, and else 0.
 
-In `gym.Env` jargon, we say that the method `step()` returns, among other things, an _observation_, which is some representation of the internal state of the gym-environment (in our case this is just the position of the robot).
+**Side-note: 'state' or 'observation'?** Above we say that step() returns an object that includes the robot's current 'state'. In RL we also say 'observation' rather than 'state', to account that an observation, for various reasons, may not reveal all information that is originally in a state. So, conceptually an observation can be more abstract than the state it derives from.
+Here we will use the term 'observation' and 'state' interchangeably as from Japyre's perspective the difference is less relevant.
 
 We want now to use some RL-library in Python to train some model with which we can 'drive' the robot in such a way that we get at least some good amount of reward (in our case, getting 'some (positive) reward' implies the robot also reaches its goal!). We are not going to look at which RL algorithm would be the best for our training (it is a simple problem anyway); but we will look instead at how we can connect Java and Python to make it possible to use that Python library.
 
-We will assume that the RL-library can work with targets which are instances of OpenAI `gym.Env` class. So, to target our SquareWorld ultimately we will have to create a subclass of `gym.Env` that somehow controls the actual SquareWorld. However, since SquareWorld is in Java, we will first adds some methods to it, so that it includes APIs similar to that of `gym.Env`. The steps are as below:
+We will assume that the RL-library can work with targets which are instances of OpenAI `gym.Env` class.
+So, to target our SquareWorld ultimately we will have to create a subclass of `gym.Env` that somehow controls the actual SquareWorld. However, since SquareWorld is in Java, we will somehow need to connect the two.
+
+Generally, the architecture of the connection is shown in the picture below:
+
+![Architecture](./architecture.png)
+
+We extend SquareWorld at the Java-side to implement the same (or at least similar) APIs as wanted by `gym.Env`.
+We also construct a mirror-Gym at the Pyton side.
+The RL-algorithm on the right only sees the mirror-gym. The algorithm will want to call methods like `reset()` and `step()` from this gym (1 in the picture). The mirror-gym forwards the call to the `GymEnvClient` (2 in the picture), which in turn forwards the call (3 in the picture) to the real Gym in Java via a TCP/IP socket connection.
+
+The `GymEnvClient` and `GymEnvServer` components are provided by Japyre. Your part is to construct the Gym and mirror-Gym.  A link to an example of how to implement this scheme is provided below.
+
+The steps to implement the above scheme are detailed below.
 
 #### 1. Implementing Java-side `gym.Env` APIs
 
@@ -156,6 +170,6 @@ That's it :)
 
 #### Using a trained model
 
-Above you have seen how to use a trained model in Python. What if we want to use a trained model (located in Python) from Java?
+Above you have seen how to use a trained model in Python. So this scheme works.
 
-TO DO :)  
+But what if we want to use a trained model (located in Python) from Java? TO DO :)  

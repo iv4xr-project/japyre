@@ -4,8 +4,10 @@ Japyre is a library provides a socket-based connection between Java and Python t
 
 ### Some basic concepts
 
-Following an OpenAI's way of looking at RL, we formulate the 'problem' on which we apply RL as a 'gym-environment'.
-A **gym-environment** represents some stateful environment. The environment allows **actions** to be executed on it, that will change its state. Some states are _terminal_ (no further actions are possible on these states). Such a state can represent a goal to achieve (so, after achieving it we are done), but it can also represent a dead-state (e.g. in a game this can represent a state where the player loses the game).
+Following an OpenAI's way of looking at RL, we formulate the 'problem' on which we apply RL as a 'gym-environment'. Because 'gym-environment' is a bit mouthful, we sometime refer to it just by the term 'gym'.
+
+
+A **gym-environment** (or **gym**, to shorthand it) represents some stateful environment. The environment allows **actions** to be executed on it, that will change its state. Some states are _terminal_ (no further actions are possible on these states). Such a state can represent a goal to achieve (so, after achieving it we are done), but it can also represent a dead-state (e.g. in a game this can represent a state where the player loses the game).
 
 Whenever an action is executed, the environment also gives back some **reward** (which can 0, or even negative). A _run_ on the environment is a series of actions executed on it (starting at its initial state).
 As a general problem to solve with RL, we are interested in figure out how to run the environment (so, deciding what action to do at each step during the interactions) that would maximize the total reward. We leave open whether we actually want to find the best run, or simply a good run.
@@ -18,7 +20,15 @@ The goal of RL could be to train/learn a V-function or a Q-function (model), fro
 
 ### Architecture
 
-Imagine, you have a gym-environment in _Java_, and you want to train a model using a _Python_ RL library. Generally, what you need to do is: (1) implement this gym-environment as a class G in Java, and (2) implement a 'mirror'-API, let's call it H, in Python that implements typical gym-environment methods, but forward the calls to G through a client-server scheme provided by Japyre. To train a model using some RL algorithm A, we use A on H instead of using it on G (well, A can't directly target G, as G is in Java).
+Imagine, you have a gym-environment (or just 'gym' to shorthand it) in _Java_, and you want to train a model using a _Python_ RL library. Generally, what you need to do is: (1) implement this gym-environment as a class G in Java, and (2) implement a 'mirror'-API, let's call it H, in Python that implements typical gym-environment methods, but forward the calls to G through a client-server scheme provided by Japyre. To train a model using some RL-algorithm A, we use A on H instead of using it on G (well, A can't directly target G, as G is in Java).
+
+The picture below shows the general architecture:
+
+![Architecture](./docs/architecture.png)
+
+The RL-algorithm on the right only sees the mirror-gym. The algorithm will want to call methods like `reset()` and `step()` from this gym (1 in the picture). The mirror-gym forwards the call to the `GymEnvClient` (2 in the picture), which in turn forwards the call (3 in the picture) to the real Gym in Java via a TCP/IP socket connection.
+
+The `GymEnvClient` and `GymEnvServer` components are provided by Japyre. Your part is to construct the Gym and mirror-Gym.  A link to an example of how to implement this scheme is provided below.
 
 ### How to build
 
