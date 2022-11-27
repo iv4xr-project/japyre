@@ -9,7 +9,7 @@ debug = True
 
 class CommandServer:
     '''
-    This class implements a command-server. To use it, first create an instance
+    This class implements a generic command-server. To use it, first create an instance
     of this class, then run the method deploy().
     '''
 

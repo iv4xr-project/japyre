@@ -113,7 +113,7 @@ public class SendCommandClient {
     }
     
     // just for testing:
-    static class SomeClass {
+    public static class SomeClass {
     	public int id ;
     	public String name ;
     	public String toString() {
@@ -121,16 +121,17 @@ public class SendCommandClient {
     	}
     }
     
-    static class A {
+    // just for testing:
+    public static class A {
     	int id ;
     	String name ;
     	List<A> children = new LinkedList<>() ;
-    	A(int id, String name)  {
+    	public A(int id, String name)  {
     		this.id = id ;
     		this.name = name ;
     	}
     	
-    	void addChild(A b) {
+    	public void addChild(A b) {
     		children.add(b) ;
     	}
     }

@@ -39,3 +39,10 @@ The Python modules can be found in `python` subdir. No packaging yet :) To-do.
 ### How to use Japyre, explained with an example
 
    * See the [SquareWorld](./docs/SquareWorldExample.md) example
+
+### Using a trained model
+
+This assumes you used Python to train a model, and models are being managed by Python.
+
+* Use the Python class [`ModelServer`](./python/src/japyre/modelserver.py) (in `modelserver.py`) to run a server. A Java-client can instruct this server to load a model, and subsequently to ask for the best next-action to do according to the model, given some current state.
+* At the Java-side, run [`JExecutor`](./src/main/java/eu/iv4xr/japyre/rl/JExecutor.java) as the client. This can be configured to interpret next-actions sent by the Python-side model server and turn it to an actual execution.

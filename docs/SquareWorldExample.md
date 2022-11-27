@@ -167,9 +167,3 @@ The full code can be seen here:
    * Script [example_sqworld_qlearning.py](../python/src/japyre/example_sqworld_qlearning.py)
 
 That's it :)
-
-#### Using a trained model
-
-Above you have seen how to use a trained model in Python. So this scheme works.
-
-But what if we want to use a trained model (located in Python) from Java? TO DO :)  
